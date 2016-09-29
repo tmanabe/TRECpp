@@ -23,12 +23,13 @@ class Query(dict):
                 file.write(self.linebreak)
         return self
 
+
 class Relevance(dict):
     linebreak = '\n'
     separator = ' '
 
     def __missing__(self, query_id):
-        self[query_id] = defaultdict(lambda:defaultdict(int))
+        self[query_id] = defaultdict(lambda: defaultdict(int))
         return self[query_id]
 
     def read(self, path):
