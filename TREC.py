@@ -23,7 +23,6 @@ class Query(dict):
                 file.write(self.linebreak)
         return self
 
-
 class Relevance(dict):
     linebreak = '\n'
     separator = ' '
@@ -57,4 +56,49 @@ class Relevance(dict):
                         ]
                         file.write(self.separator.join(l))
                         file.write(self.linebreak)
+        return self
+
+class Run(dict):
+    linebreak = '\n'
+    separator = ' '
+    system = '_'
+
+    def __missing__(self, query_id):
+        self[query_id] = []
+        return self[query_id]
+
+    def read(self, path):
+        query_id_to_pairs = defaultdict(list)
+        with open(path, 'r') as file:
+            for line in file:
+                l = re.split('\\s+', line.strip(), 5)
+                query_id, k, document_id, rank, score, s = l
+                query_id_to_pairs[query_id].append([
+                    -float(score),
+                    document_id,
+                ])
+        for query_id in query_id_to_pairs:
+            pairs = query_id_to_pairs[query_id]
+            l = self[query_id]
+            for pair in sorted(pairs):
+                l.append(pair[-1])
+        return self
+
+    def write(self, path):
+        with open(path, 'w') as file:
+            for query_id in sorted(list(self.keys())):
+                document_ids = self[query_id]
+                rank = 1
+                for document_id in document_ids:
+                    l = [
+                        query_id,
+                        'Q0',
+                        document_id,
+                        str(rank),
+                        str(-rank),
+                        self.system,
+                    ]
+                    file.write(self.separator.join(l))
+                    file.write(self.linebreak)
+                    rank += 1
         return self
