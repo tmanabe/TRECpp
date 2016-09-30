@@ -12,15 +12,15 @@ class Query(dict):
     def read(self, path):
         with open(path, 'r') as file:
             for line in file:
-                query_id, query = line.split(self.separator, 1)
+                query_id, query = line.split(Query.separator, 1)
                 self[query_id] = query.strip()
         return self
 
     def write(self, path):
         with open(path, 'w') as file:
             for k in sorted(list(self.keys())):
-                file.write(self.separator.join([str(k), self[k]]))
-                file.write(self.linebreak)
+                file.write(Query.separator.join([str(k), self[k]]))
+                file.write(Query.linebreak)
         return self
 
 class Relevance(dict):
@@ -54,8 +54,8 @@ class Relevance(dict):
                             document_id,
                             str(relevance),
                         ]
-                        file.write(self.separator.join(l))
-                        file.write(self.linebreak)
+                        file.write(Relevance.separator.join(l))
+                        file.write(Relevance.linebreak)
         return self
 
 class Run(dict):
@@ -96,9 +96,9 @@ class Run(dict):
                         document_id,
                         str(rank),
                         str(-rank),
-                        self.system,
+                        Run.system,
                     ]
-                    file.write(self.separator.join(l))
-                    file.write(self.linebreak)
+                    file.write(Run.separator.join(l))
+                    file.write(Run.linebreak)
                     rank += 1
         return self
