@@ -29,7 +29,7 @@ class ProbabilisticRelevance(dict):
     linebreak = '\n'
     separator = ' '
 
-    class rich_int(int):
+    class relevance(int):
         def __new__(self,
                     relevance='0',
                     method_id='-1',
@@ -40,7 +40,7 @@ class ProbabilisticRelevance(dict):
             return self
 
     def __missing__(self, query_id):
-        self[query_id] = defaultdict(lambda: defaultdict(self.rich_int))
+        self[query_id] = defaultdict(lambda: defaultdict(self.relevance))
         return self[query_id]
 
     def read(self, path):
@@ -48,7 +48,7 @@ class ProbabilisticRelevance(dict):
             for line in file:
                 l = re.split('\\s+', line.strip(), 4)
                 query_id, document_id = l[0:2]
-                relevance = self.rich_int(*l[2:])
+                relevance = self.relevance(*l[2:])
                 self[query_id]['0'][document_id] = relevance
         return self
 
@@ -58,6 +58,8 @@ class ProbabilisticRelevance(dict):
                 from_d = self[query_id]['0']
                 for document_id in sorted(list(from_d.keys())):
                     relevance = from_d[document_id]
+                    if not isinstance(relevance, self.relevance):
+                        relevance = self.relevance(relevance)
                     l = [
                         query_id,
                         document_id,
