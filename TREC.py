@@ -153,7 +153,14 @@ class Result(dict):
 class Run(dict):
     linebreak = '\n'
     separator = ' '
-    run_id = '_'
+
+    class document_id(str):
+        def __new__(self, document_id, score, key='Q0', run_id='_'):
+            self = str.__new__(self, document_id)
+            self.score = score
+            self.key = key
+            self.run_id = run_id
+            return self
 
     def __missing__(self, query_id):
         self[query_id] = []
@@ -164,10 +171,13 @@ class Run(dict):
         with open(path, 'r') as file:
             for line in file:
                 l = re.split('\\s+', line.strip(), 5)
-                query_id, k, document_id, rank, score, s = l
+                query_id, key, document_id, rank, score, run_id = l
                 query_id_to_pairs[query_id].append([
                     -float(score),
-                    document_id,
+                    self.document_id(document_id,
+                                     score=score,
+                                     key=key,
+                                     run_id=run_id),
                 ])
         for query_id in query_id_to_pairs:
             pairs = query_id_to_pairs[query_id]
@@ -180,17 +190,20 @@ class Run(dict):
         with open(path, 'w') as file:
             for query_id in sorted(list(self.keys())):
                 document_ids = self[query_id]
-                rank = 1
+                rank = 1.0
                 for document_id in document_ids:
+                    if not isinstance(document_id, self.document_id):
+                        document_id = self.document_id(document_id,
+                                                       score=-rank)
                     l = [
                         query_id,
-                        'Q0',
+                        document_id.key,
                         document_id,
                         str(rank),
-                        str(-rank),
-                        Run.run_id,
+                        str(document_id.score),
+                        document_id.run_id,
                     ]
                     file.write(Run.separator.join(l))
                     file.write(Run.linebreak)
-                    rank += 1
+                    rank += 1.0
         return self
