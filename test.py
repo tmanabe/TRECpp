@@ -13,6 +13,14 @@ class TestTREC(unittest.TestCase):
         destination = TREC.Query().read('./tmp_query.txt')
         self.assertEqual(source, destination)
 
+    def test_probabilistic_relevance(self):
+        source = TREC.ProbabilisticRelevance()
+        source.read('./sample_probabilistic_relevance.txt')
+        source.write('./tmp_probabilistic_relevance.txt')
+        destination = TREC.ProbabilisticRelevance()
+        destination.read('./tmp_probabilistic_relevance.txt')
+        self.assertEqual(source, destination)
+
     def test_relevance(self):
         source = TREC.Relevance().read('./sample_relevance.txt')
         source.write('./tmp_relevance.txt')

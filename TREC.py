@@ -25,6 +25,51 @@ class Query(dict):
         return self
 
 
+class ProbabilisticRelevance(dict):
+    linebreak = '\n'
+    separator = ' '
+
+    class rich_int(int):
+        def __new__(self,
+                    relevance='0',
+                    method_id='-1',
+                    probability='nan'):
+            self = int.__new__(self, relevance)
+            self.method_id = method_id
+            self.probability = float(probability)
+            return self
+
+    def __missing__(self, query_id):
+        self[query_id] = defaultdict(lambda: defaultdict(self.rich_int))
+        return self[query_id]
+
+    def read(self, path):
+        with open(path, 'r') as file:
+            for line in file:
+                l = re.split('\\s+', line.strip(), 4)
+                query_id, document_id = l[0:2]
+                relevance = self.rich_int(*l[2:])
+                self[query_id]['0'][document_id] = relevance
+        return self
+
+    def write(self, path):
+        with open(path, 'w') as file:
+            for query_id in sorted(list(self.keys())):
+                from_d = self[query_id]['0']
+                for document_id in sorted(list(from_d.keys())):
+                    relevance = from_d[document_id]
+                    l = [
+                        query_id,
+                        document_id,
+                        str(relevance),
+                        relevance.method_id,
+                        str(relevance.probability),
+                    ]
+                    file.write(ProbabilisticRelevance.separator.join(l))
+                    file.write(ProbabilisticRelevance.linebreak)
+        return self
+
+
 class Relevance(dict):
     linebreak = '\n'
     separator = ' '
