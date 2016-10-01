@@ -25,6 +25,12 @@ class TestTREC(unittest.TestCase):
         destination = TREC.Run().read('./tmp_run.txt')
         self.assertEqual(source, destination)
 
+    def test_result(self):
+        source = TREC.Result().read('./sample_result.txt')
+        source.write('./tmp_result.txt')
+        destination = TREC.Result().read('./tmp_result.txt')
+        self.assertEqual(source, destination)
+
 
 if __name__ == '__main__':
     unittest.main()

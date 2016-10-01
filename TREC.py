@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from collections import defaultdict
+import csv
 import re
 
 
@@ -22,6 +23,7 @@ class Query(dict):
                 file.write(Query.separator.join([str(k), self[k]]))
                 file.write(Query.linebreak)
         return self
+
 
 class Relevance(dict):
     linebreak = '\n'
@@ -58,10 +60,53 @@ class Relevance(dict):
                         file.write(Relevance.linebreak)
         return self
 
+
+class Result(dict):
+    linebreak = '\n'
+    separator = ','
+    run_id = '_'
+
+    def __missing__(self, query_id):
+        self[query_id] = {}
+        return self[query_id]
+
+    def read(self, path):
+        with open(path, 'r') as file:
+            for d in csv.DictReader(file):
+                d.pop('runid')
+                query_id = d.pop('topic')
+                l = self[query_id]
+                for measure in d:
+                    value = float(d[measure])
+                    if(value != value):  # NaN
+                        l[measure] = None
+                    else:
+                        l[measure] = value
+        return self
+
+    def write(self, path):
+        fieldnames = ['runid', 'topic']
+        fieldnames += list(self[list(self.keys())[0]].keys())
+        with open(path, 'w', newline=Result.linebreak) as file:
+            writer = csv.DictWriter(file, fieldnames)
+            writer.writeheader()
+            for query_id in sorted(list(self.keys())):
+                d_s = self[query_id]
+                d_d = {'runid': Result.run_id, 'topic': query_id}
+                for measure in d_s:
+                    value = d_s[measure]
+                    if value is None:
+                        d_d[measure] = '-nan'
+                    else:
+                        d_d[measure] = '{0:.6f}'.format(value)
+                writer.writerow(d_d)
+        return self
+
+
 class Run(dict):
     linebreak = '\n'
     separator = ' '
-    system = '_'
+    run_id = '_'
 
     def __missing__(self, query_id):
         self[query_id] = []
@@ -96,7 +141,7 @@ class Run(dict):
                         document_id,
                         str(rank),
                         str(-rank),
-                        Run.system,
+                        Run.run_id,
                     ]
                     file.write(Run.separator.join(l))
                     file.write(Run.linebreak)
