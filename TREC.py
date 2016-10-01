@@ -14,7 +14,7 @@ class Query(dict):
         with open(path, 'r') as file:
             for line in file:
                 query_id, query = line.split(Query.separator, 1)
-                self[query_id] = query.strip()
+                self[query_id] = query.rstrip()
         return self
 
     def write(self, path):
@@ -110,8 +110,12 @@ class Relevance(dict):
 
 class Result(dict):
     linebreak = '\n'
-    separator = ','
-    run_id = '_'
+
+    class query_id(str):
+        def __new__(self, query_id, run_id='_'):
+            self = str.__new__(self, query_id)
+            self.run_id = run_id
+            return self
 
     def __missing__(self, query_id):
         self[query_id] = {}
@@ -120,8 +124,8 @@ class Result(dict):
     def read(self, path):
         with open(path, 'r') as file:
             for d in csv.DictReader(file):
-                d.pop('runid')
-                query_id = d.pop('topic')
+                query_id = self.query_id(query_id=d.pop('topic'),
+                                         run_id=d.pop('runid').rstrip())
                 l = self[query_id]
                 for measure in d:
                     value = float(d[measure])
@@ -139,7 +143,9 @@ class Result(dict):
             writer.writeheader()
             for query_id in sorted(list(self.keys())):
                 d_s = self[query_id]
-                d_d = {'runid': Result.run_id, 'topic': query_id}
+                if not isinstance(query_id, self.query_id):
+                    query_id = self.query_id(query_id)
+                d_d = {'runid': query_id.run_id, 'topic': query_id}
                 for measure in d_s:
                     value = d_s[measure]
                     if value is None:
