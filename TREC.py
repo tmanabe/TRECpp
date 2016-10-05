@@ -196,11 +196,11 @@ class Run(dict):
         with open(path, 'w') as file:
             for query_id in sorted(list(self.keys())):
                 document_ids = self[query_id]
-                rank = 1.0
+                rank = 1
                 for document_id in document_ids:
                     if not isinstance(document_id, self.document_id):
                         document_id = self.document_id(document_id,
-                                                       score=-rank)
+                                                       score=float(-rank))
                     l = [
                         query_id,
                         document_id.key,
@@ -211,5 +211,5 @@ class Run(dict):
                     ]
                     file.write(Run.separator.join(l))
                     file.write(Run.linebreak)
-                    rank += 1.0
+                    rank += 1
         return self
