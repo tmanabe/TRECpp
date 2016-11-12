@@ -1,5 +1,5 @@
 # TREC
-Tools for TREC-style test collections.
+Tools for the TREC Web tracks.
 
 ## Classes
 - An instance of `Query`, `q`, is a dictionary of strings where `q[query_id] = query` .
