@@ -181,9 +181,9 @@ class Run(dict):
                 query_id_to_pairs[query_id].append([
                     -float(score),
                     Run.document_id(document_id,
-                                     score=score,
-                                     key=key,
-                                     run_id=run_id),
+                                    score=score,
+                                    key=key,
+                                    run_id=run_id),
                 ])
         for query_id in query_id_to_pairs:
             pairs = query_id_to_pairs[query_id]
@@ -200,7 +200,7 @@ class Run(dict):
                 for document_id in document_ids:
                     if not isinstance(document_id, Run.document_id):
                         document_id = Run.document_id(document_id,
-                                                       score=float(-rank))
+                                                      score=float(-rank))
                     l = [
                         query_id,
                         document_id.key,
