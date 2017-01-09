@@ -1,43 +1,40 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import tempfile
 import TREC
 import unittest
 
 
 class TestTREC(unittest.TestCase):
 
+    def _test(self, cls, path):
+        d = tempfile.TemporaryDirectory()
+        p = '%s/tmp.txt' % d.name
+        source = cls().read(path)
+        source.write(p)
+        destination = cls().read(p)
+        d.cleanup()
+        return (source, destination)
+
     def test_query(self):
-        source = TREC.Query().read('./sample_query.txt')
-        source.write('./tmp_query.txt')
-        destination = TREC.Query().read('./tmp_query.txt')
-        self.assertEqual(source, destination)
+        self.assertEqual(*self._test(TREC.Query, './sample_query.txt'))
 
     def test_probabilistic_relevance(self):
-        source = TREC.ProbabilisticRelevance()
-        source.read('./sample_probabilistic_relevance.txt')
-        source.write('./tmp_probabilistic_relevance.txt')
-        destination = TREC.ProbabilisticRelevance()
-        destination.read('./tmp_probabilistic_relevance.txt')
-        self.assertEqual(source, destination)
+        cls = TREC.ProbabilisticRelevance
+        path = './sample_probabilistic_relevance.txt'
+        self.assertEqual(*self._test(cls, path))
 
     def test_relevance(self):
-        source = TREC.Relevance().read('./sample_relevance.txt')
-        source.write('./tmp_relevance.txt')
-        destination = TREC.Relevance().read('./tmp_relevance.txt')
-        self.assertEqual(source, destination)
+        cls = TREC.Relevance
+        path = './sample_relevance.txt'
+        self.assertEqual(*self._test(cls, path))
 
     def test_run(self):
-        source = TREC.Run().read('./sample_run.txt')
-        source.write('./tmp_run.txt')
-        destination = TREC.Run().read('./tmp_run.txt')
-        self.assertEqual(source, destination)
+        self.assertEqual(*self._test(TREC.Run, './sample_run.txt'))
 
     def test_result(self):
-        source = TREC.Result().read('./sample_result.txt')
-        source.write('./tmp_result.txt')
-        destination = TREC.Result().read('./tmp_result.txt')
-        self.assertEqual(source, destination)
+        self.assertEqual(*self._test(TREC.Result, './sample_result.txt'))
 
 
 if __name__ == '__main__':
