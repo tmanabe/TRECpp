@@ -85,7 +85,10 @@ class Relevance(dict):
             for line in file:
                 l = re.split('\\s+', line.strip(), 3)
                 query_id, intent_id, document_id, relevance = l
-                relevance = int(relevance)
+                try:
+                    relevance = int(relevance)
+                except Exception:
+                    relevance = float(relevance)
                 self[query_id][intent_id][document_id] = relevance
         return self
 
