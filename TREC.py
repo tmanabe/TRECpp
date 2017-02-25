@@ -147,6 +147,8 @@ class Result(dict):
                     query_id = Result.query_id(query_id)
                 d_d = {'runid': query_id.run_id, 'topic': query_id}
                 for measure in d_s:
+                    if measure == '#':
+                        continue
                     value = d_s[measure]
                     if value is None:
                         d_d[measure] = '-nan'
