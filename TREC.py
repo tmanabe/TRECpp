@@ -3,7 +3,10 @@
 
 from collections import defaultdict
 import csv
+from os import system
 import re
+from shutil import which
+from tempfile import TemporaryDirectory
 
 
 class Query(dict):
@@ -131,11 +134,18 @@ class Result(dict):
                                            run_id=d.pop('runid').rstrip())
                 l = self[query_id]
                 for measure in d:
-                    value = float(d[measure])
-                    if(value != value):  # NaN
-                        l[measure] = None
-                    else:
-                        l[measure] = value
+                    try:
+                        value = float(d[measure])
+                        if(value != value):  # NaN
+                            l[measure] = None
+                        else:
+                            l[measure] = value
+                    except ValueError:
+                        if d[measure] == '-1.#IND00':  # Zero division
+                            l[measure] = None
+                        else:
+                            raise RuntimeError('TREC.Result::read:' +
+                                               'Unknown value')
         return self
 
     def write(self, path):
@@ -176,6 +186,22 @@ class Run(dict):
     def __missing__(self, query_id):
         self[query_id] = []
         return self[query_id]
+
+    def ndeval(self, rel, opt='-c -traditional'):
+        assert which('ndeval') is not None
+        d = TemporaryDirectory()
+        rel_path = '%s/rel.txt' % d.name
+        run_path = '%s/run.txt' % d.name
+        res_path = '%s/res.txt' % d.name
+        rel.write(rel_path)
+        self.write(run_path)
+        assert 0 == system(
+            'ndeval %s %s %s > %s' % (opt, rel_path, run_path, res_path))
+        with open(res_path) as f:
+            print(f.read())
+        res = Result().read(res_path)
+        d.cleanup()
+        return res
 
     def read(self, path):
         query_id_to_pairs = defaultdict(list)

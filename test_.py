@@ -33,6 +33,13 @@ class TestTREC(unittest.TestCase):
     def test_run(self):
         self.assertEqual(*self._test(TREC.Run, './sample_run.txt'))
 
+    def test_run_ndeval(self):
+        rel = TREC.Relevance().read('./sample_relevance.txt')
+        run = TREC.Run().read('./sample_run.txt')
+        expect = TREC.Result().read('./sample_result.txt')
+        actual = run.ndeval(rel)
+        self.assertEqual(expect, actual)
+
     def test_result(self):
         self.assertEqual(*self._test(TREC.Result, './sample_result.txt'))
 
