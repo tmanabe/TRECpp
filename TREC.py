@@ -9,6 +9,10 @@ from shutil import which
 from tempfile import TemporaryDirectory
 
 
+def validate_query_id(raw_query_id):
+    return re.sub(r'\D', '', raw_query_id).lstrip('0')
+
+
 class Query(dict):
     linebreak = '\n'
     separator = ':'
@@ -23,6 +27,7 @@ class Query(dict):
     def write(self, path):
         with open(path, 'w') as file:
             for k in sorted(list(self.keys())):
+                k = validate_query_id(k)
                 file.write(Query.separator.join([str(k), self[k]]))
                 file.write(Query.linebreak)
         return self
@@ -59,6 +64,7 @@ class ProbabilisticRelevance(dict):
         with open(path, 'w') as file:
             for query_id in sorted(list(self.keys())):
                 from_d = self[query_id]['0']
+                query_id = validate_query_id(query_id)
                 for document_id in sorted(list(from_d.keys())):
                     relevance = from_d[document_id]
                     if not isinstance(relevance, self.relevance):
@@ -99,6 +105,7 @@ class Relevance(dict):
         with open(path, 'w') as file:
             for query_id in sorted(list(self.keys())):
                 from_i = self[query_id]
+                query_id = validate_query_id(query_id)
                 for intent_id in sorted(list(from_i.keys())):
                     from_d = from_i[intent_id]
                     for document_id in sorted(list(from_d.keys())):
@@ -119,7 +126,7 @@ class Result(dict):
 
     class query_id(str):
         def __new__(self, query_id, run_id='_'):
-            self = str.__new__(self, query_id)
+            self = str.__new__(self, validate_query_id(query_id))
             self.run_id = run_id
             return self
 
@@ -227,6 +234,7 @@ class Run(dict):
         with open(path, 'w') as file:
             for query_id in sorted(list(self.keys())):
                 document_ids = self[query_id]
+                query_id = validate_query_id(query_id)
                 rank = 1
                 for document_id in document_ids:
                     if not isinstance(document_id, Run.document_id):

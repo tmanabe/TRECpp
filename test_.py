@@ -17,6 +17,11 @@ class TestTREC(unittest.TestCase):
         d.cleanup()
         return (source, destination)
 
+    def test_validate_query_id(self):
+        self.assertEqual('123', TREC.validate_query_id('123'))
+        self.assertEqual('123', TREC.validate_query_id('0123'))
+        self.assertEqual('123', TREC.validate_query_id('OLQ-0123'))
+
     def test_query(self):
         self.assertEqual(*self._test(TREC.Query, './sample_query.txt'))
 
