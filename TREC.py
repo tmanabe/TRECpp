@@ -200,12 +200,10 @@ class Run(dict):
         rel_path = '%s/rel.txt' % d.name
         run_path = '%s/run.txt' % d.name
         res_path = '%s/res.txt' % d.name
-        rel.write(rel_path)
-        self.write(run_path)
+        Relevance.write(rel, rel_path)
+        Run.write(self, run_path)
         assert 0 == system(
             'ndeval %s %s %s > %s' % (opt, rel_path, run_path, res_path))
-        with open(res_path) as f:
-            print(f.read())
         res = Result().read(res_path)
         d.cleanup()
         return res
