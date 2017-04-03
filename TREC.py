@@ -89,6 +89,14 @@ class Relevance(dict):
         self[query_id] = defaultdict(lambda: defaultdict(int))
         return self[query_id]
 
+    def compact(self):
+        for query_id, remainder in self.items():
+            for intent_id, d in remainder.items():
+                for document_id in sorted(d.keys()):
+                    if d[document_id] <= 0:
+                        d.pop(document_id)
+        return self
+
     def read(self, path):
         with open(path, 'r') as file:
             for line in file:

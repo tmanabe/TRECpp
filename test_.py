@@ -35,6 +35,11 @@ class TestTREC(unittest.TestCase):
         path = './sample_relevance.txt'
         self.assertEqual(*self._test(cls, path))
 
+    def test_relevance_compact(self):
+        actual = TREC.Relevance().read('./sample_relevance.txt')
+        actual.compact()
+        actual.write('./sample_relevance_compact.txt')
+
     def test_run(self):
         self.assertEqual(*self._test(TREC.Run, './sample_run.txt'))
 
