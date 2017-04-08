@@ -10,7 +10,8 @@ from tempfile import TemporaryDirectory
 
 
 def validate_query_id(raw_query_id):
-    return re.sub(r'\D', '', raw_query_id).lstrip('0')
+    candidate_query_id = re.sub(r'\D', '', raw_query_id).lstrip('0')
+    return raw_query_id if candidate_query_id == '' else candidate_query_id
 
 
 class Query(dict):
