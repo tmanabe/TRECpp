@@ -203,6 +203,16 @@ class Run(dict):
         self[query_id] = []
         return self[query_id]
 
+    def list_urls(self, path, prefix='http://127.0.0.1:8080/', suffix=''):
+        document_ids = set()
+        for _, ranking in self.items():
+            for document_id in ranking:
+                document_ids.add(document_id)
+        with open(path, 'w') as file:
+            for document_id in sorted(document_ids):
+                file.write(''.join([prefix, document_id, suffix]))
+                file.write(Run.linebreak)
+
     def ndeval(self, rel, opt='-c -traditional'):
         assert which('ndeval') is not None
         d = TemporaryDirectory()
@@ -258,4 +268,3 @@ class Run(dict):
                     file.write(Run.separator.join(l))
                     file.write(Run.linebreak)
                     rank += 1
-        return self
