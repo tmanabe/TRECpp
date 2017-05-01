@@ -3,10 +3,12 @@
 
 from collections import defaultdict
 import csv
-from os import system
 import re
-from shutil import which
-from tempfile import TemporaryDirectory
+from TRECpp import ProbabilisticRelevance as BaseProbabilisticRelevance
+from TRECpp import Query as BaseQuery
+from TRECpp import Relevance as BaseRelevance
+from TRECpp import Result as BaseResult
+from TRECpp import Run as BaseRun
 
 
 def validate_query_id(raw_query_id):
@@ -14,14 +16,11 @@ def validate_query_id(raw_query_id):
     return raw_query_id if candidate_query_id == '' else candidate_query_id
 
 
-class Query(dict):
-    linebreak = '\n'
-    separator = ':'
-
+class Query(BaseQuery):
     def read(self, path):
         with open(path, 'r') as file:
             for line in file:
-                query_id, query = line.split(Query.separator, 1)
+                query_id, query = line.split(':', 1)
                 self[query_id] = query.rstrip()
         return self
 
@@ -29,15 +28,12 @@ class Query(dict):
         with open(path, 'w') as file:
             for k in sorted(list(self.keys())):
                 k = validate_query_id(k)
-                file.write(Query.separator.join([str(k), self[k]]))
-                file.write(Query.linebreak)
+                file.write(':'.join([str(k), self[k]]))
+                file.write('\n')
         return self
 
 
-class ProbabilisticRelevance(dict):
-    linebreak = '\n'
-    separator = ' '
-
+class ProbabilisticRelevance(BaseProbabilisticRelevance):
     class relevance(int):
         def __new__(self,
                     relevance='0',
@@ -47,10 +43,6 @@ class ProbabilisticRelevance(dict):
             self.method_id = method_id
             self.probability = float(probability)
             return self
-
-    def __missing__(self, query_id):
-        self[query_id] = defaultdict(lambda: defaultdict(self.relevance))
-        return self[query_id]
 
     def read(self, path):
         with open(path, 'r') as file:
@@ -77,27 +69,12 @@ class ProbabilisticRelevance(dict):
                         relevance.method_id,
                         str(relevance.probability),
                     ]
-                    file.write(ProbabilisticRelevance.separator.join(l))
-                    file.write(ProbabilisticRelevance.linebreak)
+                    file.write(' '.join(l))
+                    file.write('\n')
         return self
 
 
-class Relevance(dict):
-    linebreak = '\n'
-    separator = ' '
-
-    def __missing__(self, query_id):
-        self[query_id] = defaultdict(lambda: defaultdict(int))
-        return self[query_id]
-
-    def compact(self):
-        for query_id, remainder in self.items():
-            for intent_id, d in remainder.items():
-                for document_id in sorted(d.keys()):
-                    if d[document_id] <= 0:
-                        d.pop(document_id)
-        return self
-
+class Relevance(BaseRelevance):
     def read(self, path):
         with open(path, 'r') as file:
             for line in file:
@@ -125,23 +102,17 @@ class Relevance(dict):
                             document_id,
                             str(relevance),
                         ]
-                        file.write(Relevance.separator.join(l))
-                        file.write(Relevance.linebreak)
+                        file.write(' '.join(l))
+                        file.write('\n')
         return self
 
 
-class Result(dict):
-    linebreak = '\n'
-
+class Result(BaseResult):
     class query_id(str):
         def __new__(self, query_id, run_id='_'):
             self = str.__new__(self, validate_query_id(query_id))
             self.run_id = run_id
             return self
-
-    def __missing__(self, query_id):
-        self[query_id] = {}
-        return self[query_id]
 
     def read(self, path):
         with open(path, 'r') as file:
@@ -167,7 +138,7 @@ class Result(dict):
     def write(self, path):
         fieldnames = ['runid', 'topic']
         fieldnames += list(self[list(self.keys())[0]].keys())
-        with open(path, 'w', newline=Result.linebreak) as file:
+        with open(path, 'w', newline='\n') as file:
             writer = csv.DictWriter(file, fieldnames)
             writer.writeheader()
             for query_id in sorted(list(self.keys())):
@@ -187,10 +158,7 @@ class Result(dict):
         return self
 
 
-class Run(dict):
-    linebreak = '\n'
-    separator = ' '
-
+class Run(BaseRun):
     class document_id(str):
         def __new__(self, document_id, score, key='Q0', run_id='_'):
             self = str.__new__(self, document_id)
@@ -198,34 +166,6 @@ class Run(dict):
             self.key = key
             self.run_id = run_id
             return self
-
-    def __missing__(self, query_id):
-        self[query_id] = []
-        return self[query_id]
-
-    def list_urls(self, path, prefix='http://127.0.0.1:8080/', suffix=''):
-        document_ids = set()
-        for _, ranking in self.items():
-            for document_id in ranking:
-                document_ids.add(document_id)
-        with open(path, 'w') as file:
-            for document_id in sorted(document_ids):
-                file.write(''.join([prefix, document_id, suffix]))
-                file.write(Run.linebreak)
-
-    def ndeval(self, rel, opt='-c -traditional'):
-        assert which('ndeval') is not None
-        d = TemporaryDirectory()
-        rel_path = '%s/rel.txt' % d.name
-        run_path = '%s/run.txt' % d.name
-        res_path = '%s/res.txt' % d.name
-        Relevance.write(rel, rel_path)
-        Run.write(self, run_path)
-        assert 0 == system(
-            'ndeval %s %s %s > %s' % (opt, rel_path, run_path, res_path))
-        res = Result().read(res_path)
-        d.cleanup()
-        return res
 
     def read(self, path):
         query_id_to_pairs = defaultdict(list)
@@ -265,6 +205,6 @@ class Run(dict):
                         str(document_id.score),
                         document_id.run_id,
                     ]
-                    file.write(Run.separator.join(l))
-                    file.write(Run.linebreak)
+                    file.write(' '.join(l))
+                    file.write('\n')
                     rank += 1

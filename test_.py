@@ -7,48 +7,28 @@ import TREC
 import unittest
 
 
-class TestTREC(unittest.TestCase):
+def _sample(filename):
+    return os.path.join('samples', filename)
 
-    def _test(self, cls, path):
+
+class TestBase(unittest.TestCase):
+    def test_relevance_compact(self):
+        with open(_sample('TREC_relevance_compact.txt')) as f:
+            expect = f.read()
+        rel = TREC.Relevance().read(_sample('TREC_relevance.txt'))
         d = tempfile.TemporaryDirectory()
         p = os.path.join(d.name, 'tmp.txt')
-        source = cls().read(path)
-        source.write(p)
-        destination = cls().read(p)
+        rel.compact()
+        rel.write(p)
+        with open(p) as f:
+            actual = f.read()
         d.cleanup()
-        return (source, destination)
-
-    def test_validate_query_id(self):
-        self.assertEqual('123', TREC.validate_query_id('123'))
-        self.assertEqual('123', TREC.validate_query_id('0123'))
-        self.assertEqual('123', TREC.validate_query_id('OLQ-0123'))
-        self.assertEqual('amean', TREC.validate_query_id('amean'))
-
-    def test_query(self):
-        self.assertEqual(*self._test(TREC.Query, 'sample_query.txt'))
-
-    def test_probabilistic_relevance(self):
-        cls = TREC.ProbabilisticRelevance
-        path = 'sample_probabilistic_relevance.txt'
-        self.assertEqual(*self._test(cls, path))
-
-    def test_relevance(self):
-        cls = TREC.Relevance
-        path = 'sample_relevance.txt'
-        self.assertEqual(*self._test(cls, path))
-
-    def test_relevance_compact(self):
-        actual = TREC.Relevance().read('sample_relevance.txt')
-        actual.compact()
-        actual.write('sample_relevance_compact.txt')
-
-    def test_run(self):
-        self.assertEqual(*self._test(TREC.Run, 'sample_run.txt'))
+        self.assertEqual(expect, actual)
 
     def test_run_list_urls(self):
-        with open('sample_urllist.txt') as f:
+        with open(_sample('others_urllist.txt')) as f:
             expect = f.read()
-        r = TREC.Run().read('sample_run.txt')
+        r = TREC.Run().read(_sample('TREC_run.txt'))
         d = tempfile.TemporaryDirectory()
         p = os.path.join(d.name, 'tmp.txt')
         r.list_urls(p)
@@ -58,14 +38,11 @@ class TestTREC(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_run_ndeval(self):
-        rel = TREC.Relevance().read('sample_relevance.txt')
-        run = TREC.Run().read('sample_run.txt')
-        expect = TREC.Result().read('sample_result.txt')
+        rel = TREC.Relevance().read(_sample('TREC_relevance.txt'))
+        run = TREC.Run().read(_sample('TREC_run.txt'))
+        expect = TREC.Result().read(_sample('TREC_result.txt'))
         actual = run.ndeval(rel)
         self.assertEqual(expect, actual)
-
-    def test_result(self):
-        self.assertEqual(*self._test(TREC.Result, 'sample_result.txt'))
 
 
 if __name__ == '__main__':
