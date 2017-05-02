@@ -4,11 +4,11 @@
 from collections import defaultdict
 import csv
 import re
-from TRECpp import ProbabilisticRelevance as BaseProbabilisticRelevance
-from TRECpp import Query as BaseQuery
-from TRECpp import Relevance as BaseRelevance
-from TRECpp import Result as BaseResult
-from TRECpp import Run as BaseRun
+from TRECpp.base import ProbabilisticRelevance as BaseProbabilisticRelevance
+from TRECpp.base import Query as BaseQuery
+from TRECpp.base import Relevance as BaseRelevance
+from TRECpp.base import Result as BaseResult
+from TRECpp.base import Run as BaseRun
 
 
 def validate_query_id(raw_query_id):
