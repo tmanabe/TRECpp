@@ -25,6 +25,14 @@ class TestBase(unittest.TestCase):
         d.cleanup()
         self.assertEqual(expect, actual)
 
+    def test_run_combine(self):
+        r = TREC.Run().read(_sample('TREC_run.txt'))
+        self.assertEqual(r, r.combine(r, alpha=0.0))
+        self.assertEqual(r, r.combine(r, alpha=0.1))
+        self.assertEqual(r, r.combine(r))
+        self.assertEqual(r, r.combine(r, alpha=0.9))
+        self.assertEqual(r, r.combine(r, alpha=1.0))
+
     def test_run_list_urls(self):
         with open(_sample('others_urllist.txt')) as f:
             expect = f.read()
