@@ -2,6 +2,8 @@
 # coding: utf-8
 
 from collections import defaultdict
+from os import mkdir
+from os import path
 from os import system
 from shutil import which
 from tempfile import TemporaryDirectory
@@ -61,18 +63,18 @@ class Run(dict):  # qID -> rank -> dID
                 for index, doc_id in enumerate(ranking_B):
                     rank = index + 1
                     id_to_penalty[doc_id] += (1 - alpha) * rank
-                pairs = [(penalty, doc_id) for doc_id, penalty in id_to_penalty.items()]
+                pairs = [(p, id) for id, p in id_to_penalty.items()]
                 run_O[query_id] = []
                 for penalty, doc_id in sorted(pairs):
                     run_O[query_id].append(doc_id)
         return run_O
 
-    def list_urls(self, path, prefix='http://127.0.0.1:8080/', suffix=''):
+    def list_urls(self, p, prefix='http://127.0.0.1:8080/', suffix=''):
         document_ids = set()
         for _, ranking in self.items():
             for document_id in ranking:
                 document_ids.add(document_id)
-        with open(path, 'w') as file:
+        with open(p, 'w') as file:
             for document_id in sorted(document_ids):
                 file.write(''.join([prefix, document_id, suffix]))
                 file.write('\n')
@@ -83,13 +85,42 @@ class Run(dict):  # qID -> rank -> dID
         from TREC import Result as TREC_Result
         from TREC import Run as TREC_Run
         d = TemporaryDirectory()
-        rel_path = '%s/rel.txt' % d.name
-        run_path = '%s/run.txt' % d.name
-        res_path = '%s/res.txt' % d.name
-        TREC_Relevance.write(rel, rel_path)
-        TREC_Run.write(self, run_path)
-        assert 0 == system(
-            'ndeval %s %s %s > %s' % (opt, rel_path, run_path, res_path))
-        res = TREC_Result().read(res_path)
-        d.cleanup()
+        try:
+            rel_path = path.join(d.name, 'rel.txt')
+            run_path = path.join(d.name, 'run.txt')
+            res_path = path.join(d.name, 'res.txt')
+            TREC_Relevance.write(rel, rel_path)
+            TREC_Run.write(self, run_path)
+            args = (opt, rel_path, run_path, res_path)
+            assert 0 == system('ndeval %s %s %s > %s' % args)
+            res = TREC_Result().read(res_path)
+        finally:
+            d.cleanup()
         return res
+
+    def NTCIREVAL(self, rel, opt='-g 4'):
+        assert which('pyNTCIREVAL') is not None
+        from NTCIR import Result as NTCIR_Result
+        d = TemporaryDirectory()
+        try:
+            names = ['relevance', 'run', 'labeled_run', 'result']
+            dirs = [path.join(d.name, n) for n in names]
+            for dir in dirs:
+                mkdir(dir)
+            assert len(self) == len(rel)
+            rel.write(dirs[0])
+            self.write(dirs[1])
+            for query_id in self.keys():
+                args = [path.join(dir, query_id + '.txt') for dir in dirs[0:3]]
+                args = tuple(args)
+                system('pyNTCIREVAL label -r %s %s > %s' % args)
+            for query_id in self.keys():
+                basename = query_id + '.txt'
+                args = [opt, path.join(dirs[0], basename)]
+                args += [path.join(dir, basename) for dir in dirs[2:]]
+                args = tuple(args)
+                system('pyNTCIREVAL compute %s -r %s %s > %s' % args)
+            result = NTCIR_Result().read(path.join(dirs[3], '*.txt'))
+        finally:
+            d.cleanup()
+        return result

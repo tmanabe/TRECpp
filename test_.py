@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import NTCIR
 import os
 import tempfile
 import TREC
@@ -8,7 +9,10 @@ import unittest
 
 
 def _sample(filename):
-    return os.path.join('samples', filename)
+    if 'NTCIR' in filename:
+        return os.path.join('samples', filename, '*.txt')
+    else:
+        return os.path.join('samples', filename)
 
 
 class TestBase(unittest.TestCase):
@@ -57,6 +61,13 @@ class TestBase(unittest.TestCase):
         run = TREC.Run().read(_sample('TREC_run.txt'))
         expect = TREC.Result().read(_sample('TREC_result.txt'))
         actual = run.ndeval(rel)
+        self.assertEqual(expect, actual)
+
+    def test_run_NTCIREVAL(self):
+        rel = NTCIR.Relevance().read(_sample('NTCIR_relevance'))
+        run = NTCIR.Run().read(_sample('NTCIR_run'))
+        expect = NTCIR.Result().read(_sample('NTCIR_result'))
+        actual = run.NTCIREVAL(rel)
         self.assertEqual(expect, actual)
 
 

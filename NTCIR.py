@@ -21,7 +21,11 @@ class Relevance(BaseRelevance):
                 for line in f:
                     l = re.split('\\s+', line.rstrip(), 1)
                     document_id, relevance = l
-                    relevance = float(relevance.lstrip('L'))
+                    relevance = relevance.lstrip('L')
+                    try:
+                        relevance = int(relevance)
+                    except Exception:
+                        relevance = float(relevance)
                     self[query_id]['0'][document_id] = relevance
         return self
 

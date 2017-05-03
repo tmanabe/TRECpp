@@ -10,8 +10,8 @@
  NCUguBR=            1.0000
  NCUrbP=             1.0000
  NCUrbBR=            1.0000
- RBP=                0.0167
- ERR=                0.2500
+ RBP=                0.0500
+ ERR=                0.8000
  AP@1000=            1.0000
  QMeasure@1000=      1.0000
  nDCG@1000=          1.0000
