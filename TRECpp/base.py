@@ -34,10 +34,6 @@ class Relevance(dict):  # qID -> iID -> dID -> relevance
         return self
 
 
-class ProbabilisticRelevance(Relevance):
-    pass
-
-
 class Result(dict):  # qID -> measure -> score
     def __missing__(self, query_id):
         self[query_id] = {}

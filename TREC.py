@@ -4,7 +4,7 @@
 from collections import defaultdict
 import csv
 import re
-from TRECpp.base import ProbabilisticRelevance as BaseProbabilisticRelevance
+from TRECpp.adv import ProbabilisticRelevance as BaseProbabilisticRelevance
 from TRECpp.base import Query as BaseQuery
 from TRECpp.base import Relevance as BaseRelevance
 from TRECpp.base import Result as BaseResult
