@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from collections import defaultdict
 from TRECpp.base import Relevance
 from TRECpp.base import Result
 from TRECpp.base import Run
@@ -9,7 +8,7 @@ from TRECpp.base import Run
 
 class ComparisonResult(dict):  # rID1 -> rID2 -> measure -> score
     def __missing__(self, query_id):
-        self[query_id] = defaultdict(lambda: defaultdict(None))
+        self[query_id] = Result()
         return self[query_id]
 
 
@@ -17,7 +16,11 @@ class ProbabilisticRelevance(Relevance):
     pass
 
 
-class ResultDict(dict):  # rID -> Result
+class ResultDict(dict):  # rID -> qID -> measure -> score
+    def __missing__(self, rID):
+        self[rID] = Result()
+        return self[rID]
+
     def __setitem__(self, k, v):
         assert isinstance(v, Result)
         super().__setitem__(k, v)

@@ -4,10 +4,11 @@
 from prettytable import PrettyTable
 from re import split
 from TRECpp.adv import ComparisonResult as OriginalComparisonResult
+from TRECpp.adv import ResultDict as OriginalResultDict
 
 
 class ComparisonResult(OriginalComparisonResult):
-    def _print(self, measure, digits=3):
+    def _print(self, measure, digits):
         header = [measure] + sorted(self.keys())
         table = PrettyTable(header)
         table.align = 'r'
@@ -51,6 +52,60 @@ class ComparisonResult(OriginalComparisonResult):
 
     def write(self, path, measure, digits=3):
         table = ComparisonResult._print(self, measure, digits)
+        with open(path, 'w') as file:
+            file.write(str(table))
+        return self
+
+
+class ResultDict(OriginalResultDict):
+    def _print(self, query_id, measures, digits):
+        header = [query_id] + measures
+        table = PrettyTable(header)
+        table.align = 'r'
+        for rID in sorted(self.keys()):
+            l = [rID]
+            for measure in measures:
+                v = self[rID][query_id][measure]
+                if isinstance(v, float):
+                    l.append('%%.%if' % digits % v)
+                else:
+                    l.append(str(v))
+            table.add_row(l)
+        return table
+
+    def print(self,
+              query_id='amean',
+              measures=['alpha-nDCG@10', 'ERR-IA@10'],
+              digits=3):
+        print(ResultDict._print(self, query_id, measures, digits))
+
+    def read(self, path):
+        with open(path, 'r') as file:
+            buf = file.readlines()
+        buf = [split(r'\s*\|\s*', l)[1:-1] for l in buf]
+        query_id, *measures = buf[1]
+        for bu in buf[3:-1]:
+            rID, *b = bu
+            assert len(measures) == len(b)
+            for measure, v in zip(measures, b):
+                if v == '':
+                    continue
+                try:
+                    v = int(v)
+                except ValueError:
+                    try:
+                        v = float(v)
+                    except ValueError:
+                        v = str(v)
+                self[rID][query_id][measure] = v
+        return self
+
+    def write(self,
+              path,
+              query_id='amean',
+              measures=['alpha-nDCG@10', 'ERR-IA@10'],
+              digits=3):
+        table = ResultDict._print(self, query_id, measures, digits)
         with open(path, 'w') as file:
             file.write(str(table))
         return self
