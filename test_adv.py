@@ -20,6 +20,18 @@ class TestAdv(unittest.TestCase):
         except AssertionError:
             pass
 
+    def test_red_format_by(self):
+        rd = ResultDict()
+        rd['k0'] = NTCIR.Result()
+        rd['k0']['alpha'] = 1.234
+        rd['k0']['beta'] = 'abcde'
+        rd['k1'] = NTCIR.Result()
+        rd['k1']['alpha'] = 5.678
+        rd['k1']['beta'] = 'fghij'
+        rd.format_by('{alpha} ({beta})', 'gamma')
+        self.assertEqual('1.234 (abcde)', rd['k0']['gamma'])
+        self.assertEqual('5.678 (fghij)', rd['k1']['gamma'])
+
     def test_red_paired_t(self):
         rd = ResultDict()
         rd['k0'] = TREC.Result().read(_sample('TREC_result.txt'))
@@ -47,20 +59,20 @@ class TestAdv(unittest.TestCase):
 
     def test_rud_ndeval(self):
         rd = RunDict()
-        rd['dummy0'] = NTCIR.Run().read(_sample('NTCIR_run'))
-        rd['dummy1'] = TREC.Run().read(_sample('TREC_run.txt'))
+        rd['k0'] = NTCIR.Run().read(_sample('NTCIR_run'))
+        rd['k1'] = TREC.Run().read(_sample('TREC_run.txt'))
         rel = TREC.Relevance().read(_sample('TREC_relevance.txt'))
         expect = TREC.Result().read(_sample('TREC_result.txt'))
-        actual = rd.ndeval(rel)['dummy1']
+        actual = rd.ndeval(rel)['k1']
         self.assertEqual(expect, actual)
 
     def test_rud_NTCIREVAL(self):
         rd = RunDict()
-        rd['dummy0'] = NTCIR.Run().read(_sample('NTCIR_run'))
-        rd['dummy1'] = TREC.Run().read(_sample('TREC_run.txt'))
+        rd['k0'] = NTCIR.Run().read(_sample('NTCIR_run'))
+        rd['k1'] = TREC.Run().read(_sample('TREC_run.txt'))
         rel = NTCIR.Relevance().read(_sample('NTCIR_relevance'))
         expect = NTCIR.Result().read(_sample('NTCIR_result'))
-        actual = rd.NTCIREVAL(rel)['dummy0']
+        actual = rd.NTCIREVAL(rel)['k0']
         self.assertEqual(expect, actual)
 
 

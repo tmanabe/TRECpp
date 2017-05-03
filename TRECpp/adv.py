@@ -22,6 +22,13 @@ class ResultDict(dict):  # rID -> Result
         assert isinstance(v, Result)
         super().__setitem__(k, v)
 
+    def format_by(self, format, key=None):
+        if key is None:
+            key = format
+        for res in self.values():
+            res[key] = format.format(**res)
+        return self
+
     def paired_t(self,
                  ignore=['amean'],
                  measure='alpha-nDCG@10'):
