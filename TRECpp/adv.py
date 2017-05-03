@@ -41,6 +41,7 @@ class ResultDict(dict):  # rID -> Result
                     l1.append(m2s1[measure])
                     l2.append(m2s2[measure])
                 statistic, pvalue = ttest_rel(l1, l2, nan_policy='raise')
+                result[rID1][rID2]['measure'] = measure
                 result[rID1][rID2]['statistic'] = statistic
                 result[rID1][rID2]['pvalue'] = pvalue
                 result[rID1][rID2]['level'] = ''
