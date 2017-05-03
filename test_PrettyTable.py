@@ -7,7 +7,6 @@ import sys
 import tempfile
 from test_base import _sample
 import TREC
-from TRECpp.adv import ResultDict
 from TRECpp.PrettyTable import ComparisonResult
 from TRECpp.PrettyTable import ResultDict
 import unittest
@@ -68,7 +67,7 @@ class TestPrettyTable(unittest.TestCase):
             expect = file.read()
         sys.stdout = StringIO()
         try:
-            ResultDict.print(rd)
+            rd.print()
             actual = sys.stdout.getvalue()
         finally:
             sys.stdout = sys.__stdout__
