@@ -16,6 +16,9 @@ def _sample(filename):
 
 
 class TestBase(unittest.TestCase):
+    def test_flake8(self):
+        self.assertEqual(0, os.system('flake8'))
+
     def test_relevance_compact(self):
         with open(_sample('TREC_relevance_compact.txt')) as f:
             expect = f.read()
