@@ -24,6 +24,13 @@ class Relevance(dict):  # qID -> iID -> dID -> relevance
                         d.pop(document_id)
         return self
 
+    def single(self, iID='0'):
+        for query_id, remainder in self.items():
+            for k in sorted(remainder.keys()):
+                if k != iID:
+                    remainder.pop(k)
+        return self
+
 
 class ProbabilisticRelevance(Relevance):
     pass

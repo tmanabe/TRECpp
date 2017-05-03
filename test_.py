@@ -25,6 +25,13 @@ class TestBase(unittest.TestCase):
         d.cleanup()
         self.assertEqual(expect, actual)
 
+    def test_relevance_single(self):
+        subject = TREC.Relevance().read(_sample('TREC_relevance.txt'))
+        subject.single('1')
+        for query_id, remainder in subject.items():
+            self.assertEqual(1, len(remainder))
+            self.assertEqual('1', list(remainder.keys())[0])
+
     def test_run_combine(self):
         r = TREC.Run().read(_sample('TREC_run.txt'))
         self.assertEqual(r, r.combine(r, alpha=0.0))
