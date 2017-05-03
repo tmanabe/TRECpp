@@ -3,7 +3,7 @@
 
 import os
 import tempfile
-from test_ import _sample
+from test_base import _sample
 import TREC
 import unittest
 

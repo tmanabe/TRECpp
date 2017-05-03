@@ -96,6 +96,7 @@ class Run(dict):  # qID -> rank -> dID
 
     def NTCIREVAL(self, rel, opt='-g 4'):
         assert which('pyNTCIREVAL') is not None
+        assert len(self) == len(rel)
         from NTCIR import Relevance as NTCIR_Relevance
         from NTCIR import Result as NTCIR_Result
         from NTCIR import Run as NTCIR_Run
@@ -105,7 +106,6 @@ class Run(dict):  # qID -> rank -> dID
             dirs = [path.join(d.name, n) for n in names]
             for dir in dirs:
                 mkdir(dir)
-            assert len(self) == len(rel)
             NTCIR_Relevance.write(rel, dirs[0])
             NTCIR_Run.write(self, dirs[1])
             for query_id in self.keys():
