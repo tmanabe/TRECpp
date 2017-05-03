@@ -64,8 +64,8 @@ class TestBase(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_run_NTCIREVAL(self):
-        rel = NTCIR.Relevance().read(_sample('NTCIR_relevance'))
-        run = NTCIR.Run().read(_sample('NTCIR_run'))
+        rel = TREC.Relevance().read(_sample('TREC_relevance.txt'))
+        run = TREC.Run().read(_sample('TREC_run.txt'))
         expect = NTCIR.Result().read(_sample('NTCIR_result'))
         actual = run.NTCIREVAL(rel)
         self.assertEqual(expect, actual)

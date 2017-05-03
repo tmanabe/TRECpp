@@ -100,7 +100,9 @@ class Run(dict):  # qID -> rank -> dID
 
     def NTCIREVAL(self, rel, opt='-g 4'):
         assert which('pyNTCIREVAL') is not None
+        from NTCIR import Relevance as NTCIR_Relevance
         from NTCIR import Result as NTCIR_Result
+        from NTCIR import Run as NTCIR_Run
         d = TemporaryDirectory()
         try:
             names = ['relevance', 'run', 'labeled_run', 'result']
@@ -108,8 +110,8 @@ class Run(dict):  # qID -> rank -> dID
             for dir in dirs:
                 mkdir(dir)
             assert len(self) == len(rel)
-            rel.write(dirs[0])
-            self.write(dirs[1])
+            NTCIR_Relevance.write(rel, dirs[0])
+            NTCIR_Run.write(self, dirs[1])
             for query_id in self.keys():
                 args = [path.join(dir, query_id + '.txt') for dir in dirs[0:3]]
                 args = tuple(args)
