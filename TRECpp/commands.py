@@ -6,9 +6,87 @@ from os import path
 from TREC import Relevance
 from TREC import Result
 from TREC import Run
-from TRECpp.adv import ResultDict
 from TRECpp.adv import RunDict
 from TRECpp.PrettyTable import ComparisonResult
+from TRECpp.PrettyTable import ResultDict
+
+
+def compare():
+    ap = AP(
+        description='Compare TREC results.'
+    )
+    ap.add_argument('--digits', '-d',
+                    default=3,
+                    help='Number of digits to be shown',
+                    metavar='int',
+                    type=int,
+                    )
+    ap.add_argument('--measure', '-m',
+                    default='alpha-nDCG@10',
+                    help='Evaluation measure',
+                    metavar='measure',
+                    type=str,
+                    )
+    ap.add_argument('--queryID', '-q',
+                    default='amean',
+                    help='Query ID or statistic to be shown',
+                    metavar='ID',
+                    type=str,
+                    )
+    ap.add_argument('--statistic', '-s',
+                    default='difference',
+                    help='Statistic to be shown, difference or percent',
+                    metavar='statistic',
+                    type=str,
+                    )
+    ap.add_argument('results',
+                    help='TREC result files',
+                    metavar='result',
+                    nargs='+',
+                    type=str,
+                    )
+    ap = ap.parse_args()
+    rd = ResultDict()
+    for result in ap.results:
+        rd[result] = Result().read(result)
+    cr = rd.compare(qID=ap.queryID, measure=ap.measure)
+    ComparisonResult.print(cr, measure=ap.statistic, digits=ap.digits)
+
+
+def format():
+    ap = AP(
+        description='Format TREC results.'
+    )
+    ap.add_argument('--digits', '-d',
+                    default=3,
+                    help='Number of digits to be shown',
+                    metavar='int',
+                    type=int,
+                    )
+    ap.add_argument('--measures', '-m',
+                    default=['alpha-nDCG@10', 'ERR-IA@10', 'MAP-IA'],
+                    help='Evaluation measures',
+                    metavar='measure',
+                    nargs='+',
+                    type=str,
+                    )
+    ap.add_argument('--queryID', '-q',
+                    default='amean',
+                    help='Query ID or statistic to be shown',
+                    metavar='ID',
+                    type=str,
+                    )
+    ap.add_argument('results',
+                    help='TREC result files',
+                    metavar='result',
+                    nargs='+',
+                    type=str,
+                    )
+    ap = ap.parse_args()
+    rd = ResultDict()
+    for result in ap.results:
+        rd[result] = Result().read(result)
+    rd.print(query_id=ap.queryID, measures=ap.measures, digits=ap.digits)
 
 
 def ndeval():

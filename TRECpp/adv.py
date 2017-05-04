@@ -25,6 +25,19 @@ class ResultDict(dict):  # rID -> qID -> measure -> score
         assert isinstance(v, Result)
         super().__setitem__(k, v)
 
+    def compare(self, qID='amean', measure='alpha-nDCG@10'):
+        result = ComparisonResult()
+        for rID1, r1 in self.items():
+            for rID2, r2 in self.items():
+                if rID1 == rID2:
+                    continue
+                res = result[rID1][rID2]
+                diff = self[rID2][qID][measure] - self[rID1][qID][measure]
+                res['measure'] = measure
+                res['difference'] = diff
+                res['percent'] = 100 * diff / self[rID2][qID][measure]
+        return result
+
     def format_by(self, format, key=None):
         if key is None:
             key = format

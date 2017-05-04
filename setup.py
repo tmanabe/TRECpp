@@ -10,6 +10,8 @@ setup(name='TRECpp',
       py_modules=['NTCIR', 'TREC'],
       entry_points='''
         [console_scripts]
+        TRECpp_compare = TRECpp.commands:compare
+        TRECpp_format = TRECpp.commands:format
         TRECpp_ndeval = TRECpp.commands:ndeval
         TRECpp_t_test = TRECpp.commands:t_test
       ''')

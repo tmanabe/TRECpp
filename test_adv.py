@@ -20,6 +20,25 @@ class TestAdv(unittest.TestCase):
         except AssertionError:
             pass
 
+    def test_red_compare(self):
+        rd = ResultDict()
+        rd['k0'] = TREC.Result().read(_sample('TREC_result.csv'))
+        rd['k1'] = TREC.Result().read(_sample('TREC_result_1.csv'))
+        rd['k2'] = TREC.Result().read(_sample('TREC_result_2.csv'))
+        actual = rd.compare()
+        self.assertAlmostEqual(0.047283, actual['k0']['k1']['difference'])
+        self.assertAlmostEqual(0.056221, actual['k0']['k2']['difference'])
+        self.assertAlmostEqual(0.008938, actual['k1']['k2']['difference'])
+        self.assertAlmostEqual(-0.047283, actual['k1']['k0']['difference'])
+        self.assertAlmostEqual(-0.056221, actual['k2']['k0']['difference'])
+        self.assertAlmostEqual(-0.008938, actual['k2']['k1']['difference'])
+        self.assertAlmostEqual(7.0037372, actual['k0']['k1']['percent'])
+        self.assertAlmostEqual(8.2188557, actual['k0']['k2']['percent'])
+        self.assertAlmostEqual(1.3066315, actual['k1']['k2']['percent'])
+        self.assertAlmostEqual(-7.5312028, actual['k1']['k0']['percent'])
+        self.assertAlmostEqual(-8.9548411, actual['k2']['k0']['percent'])
+        self.assertAlmostEqual(-1.3239304, actual['k2']['k1']['percent'])
+
     def test_red_format_by(self):
         rd = ResultDict()
         rd['k0'] = NTCIR.Result()
