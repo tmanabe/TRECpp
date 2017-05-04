@@ -6,8 +6,8 @@ from os import path
 from TREC import Relevance
 from TREC import Result
 from TREC import Run
-from TRECpp.adv import RunDict
 from TRECpp.adv import ResultDict
+from TRECpp.adv import RunDict
 from TRECpp.PrettyTable import ComparisonResult
 
 
@@ -39,6 +39,7 @@ def ndeval():
     for run, result in rd.ndeval(rel).items():
         base_name = path.basename(run)
         Result.write(result, path.join(ap.results_dir, base_name))
+
 
 def t_test():
     ap = AP(
