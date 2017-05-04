@@ -62,7 +62,7 @@ class TestBase(unittest.TestCase):
     def test_run_ndeval(self):
         rel = TREC.Relevance().read(_sample('TREC_relevance.txt'))
         run = TREC.Run().read(_sample('TREC_run.txt'))
-        expect = TREC.Result().read(_sample('TREC_result.txt'))
+        expect = TREC.Result().read(_sample('TREC_result.csv'))
         actual = run.ndeval(rel)
         self.assertEqual(expect, actual)
 

@@ -26,7 +26,7 @@ class ComparisonResult(OriginalComparisonResult):
             table.add_row(l)
         return table
 
-    def print(self, measure, digits=3):
+    def print(self, measure='pvalue', digits=3):
         print(ComparisonResult._print(self, measure, digits))
 
     def read(self, path):
@@ -50,7 +50,7 @@ class ComparisonResult(OriginalComparisonResult):
                 self[row_key][column_key][measure] = v
         return self
 
-    def write(self, path, measure, digits=3):
+    def write(self, path, measure='pvalue', digits=3):
         table = ComparisonResult._print(self, measure, digits)
         with open(path, 'w') as file:
             file.write(str(table))

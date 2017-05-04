@@ -41,7 +41,7 @@ class TestTREC(unittest.TestCase):
         self.assertEqual(*self._test(TREC.Run, 'TREC_run.txt'))
 
     def test_result(self):
-        self.assertEqual(*self._test(TREC.Result, 'TREC_result.txt'))
+        self.assertEqual(*self._test(TREC.Result, 'TREC_result.csv'))
 
 
 if __name__ == '__main__':
