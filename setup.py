@@ -11,4 +11,5 @@ setup(name='TRECpp',
       entry_points='''
         [console_scripts]
         TRECpp_ndeval = TRECpp.commands:ndeval
+        TRECpp_t_test = TRECpp.commands:t_test
       ''')
