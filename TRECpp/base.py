@@ -10,7 +10,12 @@ from tempfile import TemporaryDirectory
 
 
 class Query(dict):  # qID -> query
-    pass
+    def transpose(self):
+        result = {}
+        for k, v in self.items():
+            assert v not in result.keys()
+            result[v] = k
+        return result
 
 
 class Relevance(dict):  # qID -> iID -> dID -> relevance

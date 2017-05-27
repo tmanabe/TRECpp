@@ -19,6 +19,14 @@ class TestBase(unittest.TestCase):
     def test_flake8(self):
         self.assertEqual(0, os.system('flake8'))
 
+    def test_query_transpose(self):
+        original = TREC.Query().read(_sample('TREC_query.txt'))
+        actual = original.transpose()
+        self.assertEqual(5, len(actual))
+        for qID, q in original.items():
+            self.assertTrue(q in actual.keys())
+            self.assertEqual(qID, actual[q])
+
     def test_relevance_compact(self):
         with open(_sample('TREC_relevance_compact.txt')) as f:
             expect = f.read()
