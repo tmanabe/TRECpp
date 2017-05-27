@@ -45,10 +45,22 @@ class Result(dict):  # qID -> measure -> score
         return self[query_id]
 
 
-class Run(dict):  # qID -> rank -> dID
+class Ranking(list):  # dID list
+    def transpose(self):
+        result = []
+        for _, i in sorted([(dID, i) for i, dID in enumerate(self)]):
+            result.append(i)
+        return result
+
+
+class Run(dict):  # qID -> Ranking
     def __missing__(self, query_id):
-        self[query_id] = []
+        self[query_id] = Ranking()
         return self[query_id]
+
+    def __setitem__(self, k, v):
+        assert isinstance(v, Ranking)
+        super().__setitem__(k, v)
 
     def combine(run_A, run_B, alpha=0.5):
         '''Combine two runs. See [Cai+, SIGIR\'04] .'''
@@ -65,7 +77,6 @@ class Run(dict):  # qID -> rank -> dID
                     rank = index + 1
                     id_to_penalty[doc_id] += (1 - alpha) * rank
                 pairs = [(p, id) for id, p in id_to_penalty.items()]
-                run_O[query_id] = []
                 for penalty, doc_id in sorted(pairs):
                     run_O[query_id].append(doc_id)
         return run_O

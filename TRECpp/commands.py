@@ -54,6 +54,43 @@ def compare():
     ComparisonResult.print(cr, measure=ap.statistic, digits=ap.digits)
 
 
+def correlation():
+    ap = AP(
+        description='Calculate rank correlation metrics between runs.'
+    )
+    ap.add_argument('--digits', '-d',
+                    default=3,
+                    help='Number of digits to be shown',
+                    metavar='int',
+                    type=int,
+                    )
+    ap.add_argument('--spearman',
+                    action='store_true',
+                    help='use Spearman\'s rho instead of Kendall\'s tau',
+                    )
+    ap.add_argument('--statistic',
+                    default='correlation',
+                    help='Statistic to be shown, correlation or pvalue',
+                    metavar='statistic',
+                    type=str,
+                    )
+    ap.add_argument('runs',
+                    help='TREC run files',
+                    metavar='run',
+                    nargs='+',
+                    type=str,
+                    )
+    ap = ap.parse_args()
+    rd = RunDict()
+    for run in ap.runs:
+        rd[run] = Run().read(run)
+    if ap.spearman:
+        cr = rd.spearmanr()
+    else:
+        cr = rd.kendalltau()
+    ComparisonResult.print(cr, measure=ap.statistic, digits=ap.digits)
+
+
 def format():
     ap = AP(
         description='Format TREC results.'
@@ -173,7 +210,7 @@ def timeseries():
                     metavar='int',
                     type=int,
                     )
-    ap.add_argument('--hyphen', '-y',
+    ap.add_argument('--hyphen',
                     default='-',
                     help='Separator of two ranking IDs',
                     metavar='str',

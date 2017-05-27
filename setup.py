@@ -11,6 +11,7 @@ setup(name='TRECpp',
       entry_points='''
           [console_scripts]
           TRECpp_compare = TRECpp.commands:compare
+          TRECpp_correlation = TRECpp.commands:correlation
           TRECpp_format = TRECpp.commands:format
           TRECpp_ndeval = TRECpp.commands:ndeval
           TRECpp_t_test = TRECpp.commands:t_test

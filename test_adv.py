@@ -101,6 +101,21 @@ class TestAdv(unittest.TestCase):
         except AssertionError:
             pass
 
+    def test_rud_kendalltau(self):
+        rd = RunDict()
+        rd['k0'] = TREC.Run().read(_sample('TREC_run.txt'))
+        rd['k1'] = TREC.Run().read(_sample('TREC_run_1.txt'))
+        rd['k2'] = TREC.Run().read(_sample('TREC_run_2.txt'))
+        actual = rd.kendalltau()
+        self.assertAlmostEqual(
+            (75 - 2 * (0 + 1 + 9 + 1 + 9)) / 75,
+            actual['k0']['k1']['correlation']
+        )
+        self.assertAlmostEqual(
+            (75 - 2 * (0 + 0 + 5 + 5 + 5)) / 75,
+            actual['k1']['k2']['correlation']
+        )
+
     def test_rud_ndeval(self):
         rd = RunDict()
         rd['k0'] = TREC.Run().read(_sample('TREC_run.txt'))

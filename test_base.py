@@ -5,6 +5,7 @@ import NTCIR
 import os
 import tempfile
 import TREC
+from TRECpp.base import Ranking
 import unittest
 
 
@@ -46,6 +47,12 @@ class TestBase(unittest.TestCase):
         for query_id, remainder in subject.items():
             self.assertEqual(1, len(remainder))
             self.assertEqual('1', list(remainder.keys())[0])
+
+    def test_ranking_transpose(self):
+        original = Ranking()
+        original += ['dID2', 'dID0', 'dID1', 'dID3']
+        actual = original.transpose()
+        self.assertEqual([1, 2, 0, 3], actual)
 
     def test_run_combine(self):
         r = TREC.Run().read(_sample('TREC_run.txt'))

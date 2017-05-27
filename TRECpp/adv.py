@@ -87,6 +87,29 @@ class RunDict(dict):  # rID -> Run
         assert isinstance(v, Run)
         super().__setitem__(k, v)
 
+    def _correlation(self, func):
+        result = ComparisonResult()
+        for rID0 in self.keys():
+            for rID1 in self.keys():
+                n = len(self[rID0].keys())
+                assert n == len(self[rID1].keys())
+                total_corr, total_p = 0.0, 0.0
+                for qID in self[rID0].keys():
+                    tau, p = func(
+                        self[rID0][qID].transpose(),
+                        self[rID1][qID].transpose(),
+                        nan_policy='raise',
+                    )
+                    total_corr += tau
+                    total_p += p
+                result[rID0][rID1]['correlation'] = total_corr / n
+                result[rID0][rID1]['pvalue'] = total_p / n
+        return result
+
+    def kendalltau(self):
+        from scipy.stats import kendalltau
+        return self._correlation(kendalltau)
+
     def ndeval(self, rel, opt='-c -traditional'):
         result = ResultDict()
         for rID, r in self.items():
@@ -98,6 +121,10 @@ class RunDict(dict):  # rID -> Run
         for rID, r in self.items():
             result[rID] = r.NTCIREVAL(rel, opt)
         return result
+
+    def spearmanr(self):
+        from scipy.stats import spearmanr
+        return self._correlation(spearmanr)
 
 
 class TimeSeries(dict):  # timestamp -> ResultDict
