@@ -45,6 +45,14 @@ class ResultDict(dict):  # rID -> qID -> measure -> score
             res[key] = format.format(**res)
         return self
 
+    def measures(self):
+        result = set()
+        for rID, remainder in self.items():
+            for qID, remainder in remainder.items():
+                for measure in remainder.keys():
+                    result.add(measure)
+        return result
+
     def paired_t(self,
                  ignore=['amean'],
                  measure='alpha-nDCG@10'):
@@ -89,4 +97,37 @@ class RunDict(dict):  # rID -> Run
         result = ResultDict()
         for rID, r in self.items():
             result[rID] = r.NTCIREVAL(rel, opt)
+        return result
+
+
+class TimeSeries(dict):  # timestamp -> ResultDict
+    def __missing__(self, timestamp):
+        self[timestamp] = ResultDict()
+        return self[timestamp]
+
+    def __setitem__(self, k, v):
+        assert isinstance(v, ResultDict)
+        super().__setitem__(k, v)
+
+    def paired_t(self, sep='-'):
+        measure, grand_rd, result = None, ResultDict(), ResultDict()
+        # Original: rID -> qID -> measure -> score
+        # Here: timestamp -> statistic -> pID (ranking pair ID) -> value
+        timestamps = sorted(self.keys())
+        for timestamp in timestamps:
+            rd = self[timestamp]
+            for rID, remainder in rd.items():
+                for qID, remainder in remainder.items():
+                    if measure is None:
+                        assert len(remainder) == 1
+                        measure = sorted(remainder.keys())[0]
+                    score = remainder[measure]
+                    qID = sep.join([timestamp, str(qID)])
+                    grand_rd[rID][qID][measure] = score
+            co_result = grand_rd.paired_t([], measure)  # No ignorance
+            for rID1, remainder in co_result.items():
+                for rID2, remainder in remainder.items():
+                    pID = sep.join([rID1, rID2])
+                    for stat, value in remainder.items():
+                        result[timestamp][stat][pID] = value
         return result

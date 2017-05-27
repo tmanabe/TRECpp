@@ -7,6 +7,7 @@ from TREC import Relevance
 from TREC import Result
 from TREC import Run
 from TRECpp.adv import RunDict
+from TRECpp.csv import TimeSeries
 from TRECpp.PrettyTable import ComparisonResult
 from TRECpp.PrettyTable import ResultDict
 
@@ -160,3 +161,46 @@ def t_test():
         rd[result] = Result().read(result)
     cr = rd.paired_t(ignore=ap.ignore, measure=ap.measure)
     ComparisonResult.print(cr, measure=ap.statistic, digits=ap.digits)
+
+
+def timeseries():
+    ap = AP(
+        description='Sweep paird t-test for time series results.'
+    )
+    ap.add_argument('--digits', '-d',
+                    default=3,
+                    help='Number of digits to be shown',
+                    metavar='int',
+                    type=int,
+                    )
+    ap.add_argument('--hyphen', '-y',
+                    default='-',
+                    help='Separator of two ranking IDs',
+                    metavar='str',
+                    type=str,
+                    )
+    ap.add_argument('result',
+                    help='A file of time series of results',
+                    metavar='result',
+                    type=str,
+                    )
+    ap.add_argument('--statistic', '-s',
+                    default='pvalue',
+                    help='Statistic to be shown',
+                    metavar='statistic',
+                    type=str,
+                    )
+    ap = ap.parse_args()
+    rd = TimeSeries().read(ap.result).paired_t(sep=ap.hyphen)
+    for timestamp, result in rd.items():
+        for statistic, remainder in result.items():
+            for pID in sorted(remainder.keys()):
+                rID0, rID1 = pID.split(sep=ap.hyphen)
+                if rID1 <= rID0:
+                    remainder.pop(pID)
+    ResultDict.print(
+        rd,
+        query_id=ap.statistic,
+        measures=sorted(rd.measures()),
+        digits=ap.digits
+    )

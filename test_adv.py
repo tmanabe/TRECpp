@@ -6,6 +6,7 @@ from test_base import _sample
 import TREC
 from TRECpp.adv import ResultDict
 from TRECpp.adv import RunDict
+import TRECpp.csv
 import unittest
 
 
@@ -50,6 +51,14 @@ class TestAdv(unittest.TestCase):
         rd.format_by('{alpha} ({beta})', 'gamma')
         self.assertEqual('1.234 (abcde)', rd['k0']['gamma'])
         self.assertEqual('5.678 (fghij)', rd['k1']['gamma'])
+
+    def test_red_measures(self):
+        rd = ResultDict()
+        rd['k0'] = TREC.Result().read(_sample('TREC_result.csv'))
+        rd['k1'] = TREC.Result().read(_sample('TREC_result_1.csv'))
+        rd['k2'] = TREC.Result().read(_sample('TREC_result_2.csv'))
+        actual = rd.measures()
+        self.assertEqual(21, len(actual))
 
     def test_red_paired_t(self):
         rd = ResultDict()
@@ -117,6 +126,34 @@ class TestAdv(unittest.TestCase):
         expect = NTCIR.Result().read(_sample('NTCIR_result'))
         actual = rd.NTCIREVAL(rel)['k0']
         self.assertEqual(expect, actual)
+
+    def test_ts_paired_t(self):
+        ts = TRECpp.csv.TimeSeries().read(_sample('csv_timeseries.csv'))
+        actual = ts.paired_t()
+        self.assertAlmostEqual(
+            0.391002,
+            actual['2016']['pvalue']['result-result_1'],
+            6)
+        self.assertAlmostEqual(
+            0.785696,
+            actual['2016']['pvalue']['result_1-result_2'],
+            6)
+        self.assertAlmostEqual(
+            0.457727,
+            actual['2016']['pvalue']['result_2-result'],
+            6)
+        self.assertAlmostEqual(
+            0.115358,
+            actual['2017']['pvalue']['result-result_1'],
+            6)
+        self.assertAlmostEqual(
+            0.339883,
+            actual['2017']['pvalue']['result_1-result_2'],
+            6)
+        self.assertAlmostEqual(
+            0.146100,
+            actual['2017']['pvalue']['result_2-result'],
+            6)
 
 
 if __name__ == '__main__':
