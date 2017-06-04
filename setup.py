@@ -5,9 +5,9 @@ from setuptools import setup
 
 
 setup(name='TRECpp',
-      version='0.0.4',
+      version='0.0.5',
       packages=['TRECpp'],
-      py_modules=['NTCIR', 'TREC'],
+      py_modules=['LETOR', 'NTCIR', 'TREC'],
       entry_points='''
           [console_scripts]
           TRECpp_compare = TRECpp.commands:compare
