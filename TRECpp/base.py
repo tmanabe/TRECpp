@@ -46,6 +46,13 @@ class Result(dict):  # qID -> measure -> score
 
 
 class Ranking(list):  # dID list
+    @classmethod
+    def generate(cls, d):
+        result = cls()
+        for did in sorted(d.keys(), key=lambda did: (-d[did], did)):
+            result.append(did)
+        return result
+
     def transpose(self):
         result = []
         for _, i in sorted([(dID, i) for i, dID in enumerate(self)]):

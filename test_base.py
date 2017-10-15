@@ -48,6 +48,16 @@ class TestBase(unittest.TestCase):
             self.assertEqual(1, len(remainder))
             self.assertEqual('1', list(remainder.keys())[0])
 
+    def test_ranking_generate(self):
+        d = {
+            'dID0': -1.0,
+            'dID1': 0.0,
+            'dID2': 0.0,
+            'dID3': 1.0,
+        }
+        actual = Ranking.generate(d)
+        self.assertEqual(['dID3', 'dID1', 'dID2', 'dID0'], actual)
+
     def test_ranking_transpose(self):
         original = Ranking()
         original += ['dID2', 'dID0', 'dID1', 'dID3']
