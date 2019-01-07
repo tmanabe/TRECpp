@@ -167,6 +167,29 @@ class Run(BaseRun):
             self.run_id = run_id
             return self
 
+    def combine(run_A, run_B, alpha=0.5):
+        '''Combine two runs. See [Cai+, SIGIR\'04] .'''
+        run_O = Run()
+        for query_id in run_A:
+            if query_id in run_B:
+                ranking_A, ranking_B = run_A[query_id], run_B[query_id]
+                assert sorted(ranking_A) == sorted(ranking_B)
+                id_to_penalty = {}
+                for index, doc_id in enumerate(ranking_A):
+                    rank = index + 1
+                    id_to_penalty[doc_id] = alpha * rank
+                for index, doc_id in enumerate(ranking_B):
+                    rank = index + 1
+                    id_to_penalty[doc_id] += (1 - alpha) * rank
+                pairs = [(p, id) for id, p in id_to_penalty.items()]
+                for penalty, doc_id in sorted(pairs):
+                    if isinstance(doc_id, Run.document_id):
+                        doc_id = Run.document_id(
+                            doc_id,
+                            -(len(run_O[query_id]) + 1))
+                    run_O[query_id].append(doc_id)
+        return run_O
+
     def read(self, path):
         query_id_to_pairs = defaultdict(list)
         with open(path, 'r') as file:

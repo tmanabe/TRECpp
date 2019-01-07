@@ -38,7 +38,8 @@ class ResultDict(OriginalResultDict):
             rIDs = sorted(self.keys())
             alignment = '|'.join(['c'] * (len(measures) + 1))
             file.write('\\begin{tabular}{%s} \\hline\n' % alignment)
-            file.write(' & '.join([query_id] + measures) + ' \\\\ \\hline\\hline\n')
+            file.write(' & '.join([query_id] + measures) +
+                       ' \\\\ \\hline\\hline\n')
             for rID in rIDs:
                 file.write(rID)
                 for measure in measures:

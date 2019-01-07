@@ -18,7 +18,7 @@ def _sample(filename):
 
 class TestBase(unittest.TestCase):
     def test_flake8(self):
-        self.assertEqual(0, os.system('flake8'))
+        self.assertEqual(0, os.system('flake8 . --ignore D,E241'))
 
     def test_query_transpose(self):
         original = TREC.Query().read(_sample('TREC_query.txt'))
